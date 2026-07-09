@@ -3,6 +3,7 @@ package data;
 import java.util.ArrayList;
 import java.util.List;
 
+import exceptions.AirportExists;
 import exceptions.AirportNotExists;
 
 public class Airport extends Data{
@@ -21,7 +22,11 @@ public class Airport extends Data{
 		this.code = code;
 	}
 	
-	public static void addAirport(int x, int y, String name, String code) {
+	public static void addAirport(int x, int y, String name, String code) throws AirportExists {
+		for(Airport airp : airports) {
+			if(airp.code.equals(code))
+				throw new AirportExists(code);
+		}
 		airports.add(new Airport(x,y,name,code));
 	}
 	

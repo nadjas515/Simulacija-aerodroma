@@ -4,31 +4,33 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
+import exceptions.AirportExists;
 import exceptions.AirportNotExists;
 import exceptions.FileNotExists;
 import exceptions.FormatException;
 
 //odgovara jednom aerodromu u JSON-u: {"code":..,"name":..,"x":..,"y":..}
 class AirportJson {
- String code;
- String name;
- int x;
- int y;
+	String code;
+	String name;
+	int x;
+	int y;
 }
 
 //odgovara jednom letu: {"from":..,"to":..,"departure":"08:30","duration":..}
 class FlightJson {
- String from;
- String to;
- String departure;   // ostaje String jer je "08:30"
- int duration;
+	String from;
+	String to;
+	String departure;   // ostaje String jer je "08:30"
+	int duration;
 }
 
 //omotač oko cele datoteke
 class DataWrapper {
- AirportJson[] airports;
- FlightJson[] flights;
+	AirportJson[] airports;
+	FlightJson[] flights;
 }
 
 public class JSONReader extends Reader {
@@ -36,54 +38,66 @@ public class JSONReader extends Reader {
 	@Override
 	public void processAirports(String line) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void processFlights(String line) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
-	public void process(BufferedReader br) throws IOException, FormatException {
-	    Gson gson = new Gson();
-	    DataWrapper w = gson.fromJson(br, DataWrapper.class);   // umesto Student.class
+	public void process(BufferedReader br)
+			throws IOException, FormatException, AirportExists, AirportNotExists {
+		Gson gson = new Gson();
 
-	    // aerodromi -> u tvoju listu
-	    for (AirportJson a : w.airports) {
-	        if(Math.abs(a.x)>180)
-	            System.out.println("Aerodrom " + a.code + ": X koordinata (" + a.x
-	                + ") mora biti između -180 i 180. Aerodrom je preskočen.");
-	        else if(Math.abs(a.y)>90)
-	            System.out.println("Aerodrom " + a.code + ": Y koordinata (" + a.y
-	                + ") mora biti između -90 i 90. Aerodrom je preskočen.");
-	        else
-	            Airport.addAirport(a.x, a.y, a.name, a.code);
-	    }
+		DataWrapper w;
+		try {
+			w = gson.fromJson(br, DataWrapper.class);
+		} catch (JsonSyntaxException e) {
+			throw new FormatException("Fajl nije u ispravnom JSON formatu.");
+		}
+		if (w == null || w.airports == null || w.flights == null)
+			throw new FormatException("Fajl ne sadrži očekivane sekcije 'airports' i 'flights'.");
 
-	    // letovi -> u tvoju listu
-	    for (FlightJson f : w.flights) {
-	        try {
-	            Airport start = Airport.findAirport(f.from);
-	            Airport end   = Airport.findAirport(f.to);
-	            String[] time = f.departure.split(":");
-	            Flight.addFlights(start, end,
-	                Integer.parseInt(time[0]), Integer.parseInt(time[1]), f.duration);
-	        } catch (AirportNotExists e) {
-	            System.out.println(e.getMessage());
-	        }
-	    }
+		// aerodromi -> u tvoju listu
+		for (AirportJson a : w.airports) {
+			if(Math.abs(a.x)>180)
+				throw new FormatException("Aerodrom " + a.code + ": X koordinata (" + a.x
+					+ ") mora biti između -180 i 180");
+			if(Math.abs(a.y)>90)
+				throw new FormatException("Aerodrom " + a.code + ": Y koordinata (" + a.y
+					+ ") mora biti između -90 i 90");
+			Airport.addAirport(a.x, a.y, a.name, a.code);
+		}
 
-	    Airport.printAirports();
-	    Flight.printFlights();
+		// letovi -> u tvoju listu
+		for (FlightJson f : w.flights) {
+			Airport start = Airport.findAirport(f.from);
+			Airport end   = Airport.findAirport(f.to);
+			String[] time = f.departure.split(":");
+			if (time.length < 2)
+				throw new FormatException("Neispravno vreme poletanja: " + f.departure);
+			int h, min;
+			try {
+				h = Integer.parseInt(time[0].trim());
+				min = Integer.parseInt(time[1].trim());
+			} catch (NumberFormatException e) {
+				throw new FormatException("Neispravno vreme poletanja: " + f.departure);
+			}
+			Flight.addFlights(start, end, h, min, f.duration);
+		}
+
+		Airport.printAirports();
+		Flight.printFlights();
 	}
 
 	public static void main(String[] args) {
-		JSONReader csv = new JSONReader();
+		JSONReader reader = new JSONReader();
 		try {
-			csv.read("files/data.json");
-		} catch (FileNotExists e) {
+			reader.read("files/data.json");
+		} catch (FileNotExists | IOException | FormatException | AirportExists | AirportNotExists e) {
 			System.out.println(e.getMessage());
 		}
 	}
