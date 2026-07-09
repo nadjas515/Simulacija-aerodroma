@@ -1,4 +1,4 @@
-package data;
+package data.reader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,10 +12,6 @@ import exceptions.FileNotExists;
 import exceptions.FormatException;
 
 public abstract class Reader {
-
-	public abstract void processAirports(String line);
-
-	public abstract void processFlights(String line);
 
 	public abstract void process(BufferedReader br)
 			throws IOException, FormatException, AirportExists, AirportNotExists;

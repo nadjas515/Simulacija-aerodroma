@@ -33,6 +33,14 @@ public class Airport extends Data{
 	public static void addAirport(Airport a) {
 		airports.add(a);
 	}
+
+	public static List<Airport> getAirports() {
+		return airports;
+	}
+
+	public static void clearAll() {
+		airports.clear();
+	}
 	
 	
 	public int getX() {
@@ -65,6 +73,10 @@ public class Airport extends Data{
 		for(Airport airp : airports) {
 			System.out.println(airp.toString());
 		}
+	}
+
+	public Object[] toRow() {
+		return new Object[]{ code, name, x, y };
 	}
 	
 }

@@ -27,6 +27,14 @@ public class Flight extends Data{
 	public static void addFlights(Flight f) {
 		flights.add(f);
 	}
+
+	public static List<Flight> getFlights() {
+		return flights;
+	}
+
+	public static void clearAll() {
+		flights.clear();
+	}
 	
 	@Override
 	public String toString() {
@@ -54,6 +62,14 @@ public class Flight extends Data{
 	public int getDuration() {
 		return duration;
 	}
-	
+
+	public Object[] toRow() {
+		return new Object[]{
+				start.getCode(),
+				end.getCode(),
+				String.format("%02d:%02d", h, min),   // vreme kao "08:30"
+				duration
+		};
+	}
 	
 }

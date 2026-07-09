@@ -1,4 +1,4 @@
-package data;
+package data.reader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,46 +6,17 @@ import java.io.IOException;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import data.Airport;
+import data.AirportJson;
+import data.DataWrapper;
+import data.Flight;
+import data.FlightJson;
 import exceptions.AirportExists;
 import exceptions.AirportNotExists;
 import exceptions.FileNotExists;
 import exceptions.FormatException;
 
-//odgovara jednom aerodromu u JSON-u: {"code":..,"name":..,"x":..,"y":..}
-class AirportJson {
-	String code;
-	String name;
-	int x;
-	int y;
-}
-
-//odgovara jednom letu: {"from":..,"to":..,"departure":"08:30","duration":..}
-class FlightJson {
-	String from;
-	String to;
-	String departure;   // ostaje String jer je "08:30"
-	int duration;
-}
-
-//omotač oko cele datoteke
-class DataWrapper {
-	AirportJson[] airports;
-	FlightJson[] flights;
-}
-
 public class JSONReader extends Reader {
-
-	@Override
-	public void processAirports(String line) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void processFlights(String line) {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public void process(BufferedReader br)

@@ -1,173 +1,182 @@
 package gui;
 
-import data.Airport;
+import data.*;
+import data.reader.*;
+import data.writer.*;
 import exceptions.AirportExists;
 import exceptions.AirportNotExists;
 import exceptions.FileNotExists;
 import exceptions.FormatException;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import javax.swing.*;                       // JFrame, JButton, JLabel, JTextField, JPanel, JTable, JTabbedPane
+import javax.swing.table.DefaultTableModel; // model tabele
+import java.awt.*;                          // layout-i, Font, Toolkit, AWTEvent
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 
-class ErrorDialog extends Dialog {
-	ErrorDialog(java.awt.Window owner, String msg) {
-		super(owner);
-        Label title = new Label(msg);
-        title.setFont(new Font("Verdana", Font.BOLD, 30));
-        title.setForeground(Color.RED);
-        title.setAlignment(Label.CENTER);
-        this.add(title);
-        this.setSize(800,200);
-        this.setModal(true);
-        this.setLocationRelativeTo(owner);
-        this.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                dispose();
-            }
-        });
-        setVisible(true);
-	}
-}
 
-class Input extends Dialog {
+// U Swing-u glavni prozor je JFrame (umesto AWT Frame)
+class Window extends JFrame {
 
-    public Input(Frame owner) {
-        super(owner);
-        this.setLayout(new BorderLayout(5, 5));
-        Panel p = new Panel();
-        p.setLayout(new GridLayout(0, 2, 50, 10));  // 2 kolone: Label + TextField
+    // modeli tabela su POLJA klase - da bi refresh() mogao da ih puni sa bilo kog mesta
+    private final DefaultTableModel airportModel =
+            new DefaultTableModel(new String[]{"Code", "Name", "X", "Y"}, 0);
+    private final DefaultTableModel flightModel =
+            new DefaultTableModel(new String[]{"Start", "End", "Departure", "Duration"}, 0);
 
-        Label name_label = new Label("Name:");
-        name_label.setFont(new Font("Verdana", Font.PLAIN, 40));
-        name_label.setAlignment(Label.RIGHT);
-        p.add(name_label);
-        TextField name = new TextField(20);
-        name.setFont(new Font("Verdana", Font.PLAIN, 40));
-        p.add(name);
-
-        Label code_label = new Label("Code:");
-        code_label.setFont(new Font("Verdana", Font.PLAIN, 40));
-        code_label.setAlignment(Label.RIGHT);
-        p.add(code_label);
-        TextField code = new TextField(20);
-        code.setFont(new Font("Verdana", Font.PLAIN, 40));
-        p.add(code);
-
-        Label x_label = new Label("X coordinate:");
-        x_label.setFont(new Font("Verdana", Font.PLAIN, 40));
-        x_label.setAlignment(Label.RIGHT);
-        p.add(x_label);
-        TextField x = new TextField(20);
-        x.setFont(new Font("Verdana", Font.PLAIN, 40));
-        p.add(x);
-
-        Label y_label = new Label("Y coordinate:");
-        y_label.setFont(new Font("Verdana", Font.PLAIN, 40));
-        y_label.setAlignment(Label.RIGHT);
-        p.add(y_label);
-        TextField y = new TextField(20);
-        y.setFont(new Font("Verdana", Font.PLAIN, 40));
-        p.add(y);
-
-        Panel button_panel = new Panel();
-        button_panel.setLayout(new FlowLayout());
-        Button ok = new Button("OK");
-        ok.setFont(new Font("Verdana", Font.PLAIN, 40));
-
-        ok.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String nameVal = name.getText();
-                String codeVal = code.getText();
-                String xVal    = x.getText();
-                String yVal    = y.getText();
-
-                try {
-                    if (nameVal.isEmpty() || codeVal.isEmpty() || xVal.isEmpty() || yVal.isEmpty()) {
-                        throw new FormatException("Sva polja trebaju biti popunjena");
-                    }
-                    if(codeVal.length()!=3 || codeVal.equals(codeVal.toUpperCase())){
-                        throw new FormatException("Kod treba bude tačno 3 velika slova");
-                    }
-                    int xi = Integer.parseInt(xVal.trim());
-                    int yi = Integer.parseInt(yVal.trim());
-                    if(Math.abs(xi)>180)
-                        throw new FormatException("X koordinata mora biti između -180 i 180");
-                    if(Math.abs(yi)>90)
-                        throw new FormatException("Y koordinata mora biti između -90 i 90");
-
-                    Airport.addAirport(xi, yi, nameVal, codeVal);
-                    Airport.printAirports();
-                    dispose();
-                }
-                catch (NumberFormatException ex) {
-                    new ErrorDialog(Input.this,"Brojevi nisu u dobrom formatu");
-                }
-                catch (AirportExists | FormatException ex) {
-                    new ErrorDialog(Input.this,ex.getMessage());
-                }
-            }
-        });
-
-        button_panel.add(ok);
-
-        this.add(p, BorderLayout.CENTER);   // Label + TextField (dve kolone)
-        this.add(button_panel, BorderLayout.SOUTH);   // OK preko cele širine (obe kolone)
-        this.setModal(true);
-        this.pack();
-
-        this.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                dispose();
-            }
-        });
-
-        this.setVisible(true);
-    }
-
-    @Override
-    public Insets getInsets() {
-        Insets i = super.getInsets();   // originalne ivice (naslovna traka, okvir)
-        return new Insets(i.top + 50, i.left + 60, i.bottom + 50, i.right + 60);
-    }
-
-}
-
-
-class Window extends Frame {
     Window() {
         super("Airport");
-        this.setSize(800, 800);
+        this.setSize(1500, 800);
         this.setLayout(new BorderLayout());
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        Button start = new Button("Input airport");
-        start.setFont(new Font("Verdana", Font.BOLD, 40));
-        start.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Input in = new Input(Window.this);
+        // ---------- dugmad (NORTH) ----------
+        JButton inputAirport = new JButton("Input airport");
+        inputAirport.setFont(new Font("Verdana", Font.PLAIN, 40));
+        inputAirport.addActionListener(e -> {
+            new InputAirport(Window.this);   // modalni dijalog - blokira dok se ne zatvori
+            refresh();                        // po zatvaranju osveži tabelu (možda je dodat aerodrom)
+        });
+
+        JButton inputFlight = new JButton("Input flight");
+        inputFlight.setFont(new Font("Verdana", Font.PLAIN, 40));
+        inputFlight.addActionListener(e -> {
+            new InputFlight(Window.this);
+            refresh();
+        });
+
+        JLabel input_file_label = new JLabel("Input file:");
+        input_file_label.setFont(new Font("Verdana", Font.PLAIN, 40));
+
+        JTextField input_file = new JTextField(10);
+        input_file.setFont(new Font("Verdana", Font.PLAIN, 40));
+
+        JButton load = new JButton("Load");
+        load.setFont(new Font("Verdana", Font.PLAIN, 40));
+        load.addActionListener(e -> {
+            String filename = input_file.getText();
+            String ext = filename.substring(filename.lastIndexOf('.') + 1);
+            Reader reader;
+            if (ext.equals("json")) {
+                reader = new JSONReader();
+            } else if (ext.equals("csv")) {
+                reader = new CSVReader();
+            } else {
+                new ErrorDialog(Window.this, "Ne valja format fajla, prihvata se samo csv i json");
+                return;
+            }
+            try {
+                reader.read(filename);
+                refresh();                                       // prikaži učitane podatke u tabeli
+                new InfoDialog(Window.this, "Uspešno učitano");
+            } catch (IOException ex) {
+                new ErrorDialog(Window.this, "Fajl se ne može pročitati");
+            } catch (FileNotExists | FormatException | AirportNotExists | AirportExists ex) {
+                new ErrorDialog(Window.this, ex.getMessage());
             }
         });
 
-        Panel p = new Panel();
-        p.setLayout(new FlowLayout());
-        p.add(start);
+        JLabel output_file_label = new JLabel("Output file:");
+        output_file_label.setFont(new Font("Verdana", Font.PLAIN, 40));
 
-        this.add(p,BorderLayout.NORTH);
-        setVisible(true);
+        JTextField output_file = new JTextField(10);
+        output_file.setFont(new Font("Verdana", Font.PLAIN, 40));
 
-        this.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                dispose();
+        JButton save = new JButton("Save");
+        save.setFont(new Font("Verdana", Font.PLAIN, 40));
+        save.addActionListener(e -> {
+            String filename = output_file.getText();
+            String ext = filename.substring(filename.lastIndexOf('.') + 1);
+            Writer writer;
+            if (ext.equals("json")) {
+                writer = new JSONWriter();
+            } else if (ext.equals("csv")) {
+                writer = new CSVWriter();
+            } else {
+                new ErrorDialog(Window.this, "Ne valja format fajla, prihvata se samo csv i json");
+                return;
+            }
+            try {
+                writer.write(filename);
+                new InfoDialog(Window.this, "Uspešno sačuvano");
+            } catch (IOException ex) {
+                new ErrorDialog(Window.this, "Fajl se ne može sačuvati");
             }
         });
+
+        // isprazni sve podatke (npr. pre učitavanja novog fajla, da nema duplikata)
+        JButton clear = new JButton("Clear");
+        clear.setFont(new Font("Verdana", Font.PLAIN, 40));
+        clear.addActionListener(e -> {
+            Airport.clearAll();
+            Flight.clearAll();
+            refresh();
+        });
+
+        JPanel p = new JPanel(new FlowLayout());
+        p.add(inputAirport);
+        p.add(inputFlight);
+        p.add(input_file_label);
+        p.add(input_file);
+        p.add(load);
+        p.add(output_file_label);
+        p.add(output_file);
+        p.add(save);
+        p.add(clear);
+        this.add(p, BorderLayout.NORTH);
+
+        // ---------- tabele (CENTER) ----------
+        JTable airportTable = new JTable(airportModel);
+        configureTable(airportTable);
+        // širine kolona za tabelu aerodroma
+        airportTable.getColumnModel().getColumn(0).setPreferredWidth(120);   // Code
+        airportTable.getColumnModel().getColumn(1).setPreferredWidth(500);   // Name
+        airportTable.getColumnModel().getColumn(2).setPreferredWidth(100);   // X
+        airportTable.getColumnModel().getColumn(3).setPreferredWidth(100);   // Y
+
+        JTable flightTable = new JTable(flightModel);
+        configureTable(flightTable);
+
+        // dve tabele u tabovima "Airports" / "Flights"
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.setFont(new Font("Verdana", Font.PLAIN, 24));
+        tabs.addTab("Airports", new JScrollPane(airportTable));   // tabela MORA u JScrollPane
+        tabs.addTab("Flights",  new JScrollPane(flightTable));
+        this.add(tabs, BorderLayout.CENTER);
+
+        this.setVisible(true);
+
+        // tajmer neaktivnosti - radi isto kao pre (ne zavisi od AWT/Swing komponenti)
+        InactivityTimer timer = new InactivityTimer(this);
+        Toolkit.getDefaultToolkit().addAWTEventListener(event -> {
+            int id = event.getID();
+            if (id == MouseEvent.MOUSE_PRESSED || id == KeyEvent.KEY_PRESSED)
+                timer.reset();
+        }, AWTEvent.KEY_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK);
+        timer.start();
     }
+
+    // zajedničko podešavanje izgleda tabele (font, visina reda, font zaglavlja)
+    private void configureTable(JTable table) {
+        table.setRowHeight(50);
+        table.setFont(new Font("Verdana", Font.PLAIN, 30));
+        table.getTableHeader().setFont(new Font("Verdana", Font.BOLD, 30));
+    }
+
+    // puni obe tabele iz trenutnih podataka - zove se posle svakog unosa i Load-a
+    void refresh() {
+        airportModel.setRowCount(0);                 // obriši stare redove
+        for (Airport a : Airport.getAirports())
+            airportModel.addRow(a.toRow());
+
+        flightModel.setRowCount(0);
+        for (Flight f : Flight.getFlights())
+            flightModel.addRow(f.toRow());
+    }
+
     public static void main(String[] args) {
-        new Window();
+        // Swing preporuka: GUI se pravi na Event Dispatch niti (EDT)
+        SwingUtilities.invokeLater(() -> new Window());
     }
 }

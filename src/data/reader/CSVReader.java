@@ -1,28 +1,16 @@
-package data;
+package data.reader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import data.Airport;
+import data.Flight;
 import exceptions.AirportExists;
 import exceptions.AirportNotExists;
 import exceptions.FileNotExists;
 import exceptions.FormatException;
 
 public class CSVReader extends Reader {
-
-	@Override
-	public void processAirports(String line) {
-		// TODO Auto-generated method stub
-
-	}
-
-
-	@Override
-	public void processFlights(String line) {
-		// TODO Auto-generated method stub
-
-	}
-
 
 	@Override
 	public void process(BufferedReader br)
