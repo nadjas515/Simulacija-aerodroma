@@ -1,6 +1,6 @@
 package util;
 
 public class MapProjection {
-    public static int toPixelX(int x, int width)  { return (int)((1 + x / 180.0) * (width / 2)); }
-    public static int toPixelY(int y, int height) { return (int)((1 - y / 90.0) * (height / 2)); }
+    public static int toPixelX(float x, int width)  { return Math.round((1 + x / 180f) * (width / 2f)); }
+    public static int toPixelY(float y, int height) { return Math.round((1 - y / 90f) * (height / 2f)); }
 }

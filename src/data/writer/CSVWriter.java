@@ -16,7 +16,7 @@ public class CSVWriter extends Writer {
 		bw.write("CODE,NAME,X,Y");
 		bw.newLine();
 		for (Airport a : Airport.getAirports()) {
-			bw.write(a.getCode() + "," + a.getName() + "," + a.getX() + "," + a.getY());
+			bw.write(a.getCode() + "," + a.getName() + "," + (int) a.getX() + "," + (int) a.getY());
 			bw.newLine();
 		}
 
@@ -28,7 +28,7 @@ public class CSVWriter extends Writer {
 		bw.newLine();
 		for (Flight f : Flight.getFlights()) {
 			bw.write(f.getStart().getCode() + "," + f.getEnd().getCode() + ","
-				+ String.format("%02d:%02d", f.getH(), f.getMin()) + "," + f.getDuration());
+				+ String.format("%02d:%02d", f.getPlannedH(), f.getPlannedMin()) + "," + f.getDuration());
 			bw.newLine();
 		}
 	}

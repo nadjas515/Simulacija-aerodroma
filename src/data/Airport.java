@@ -52,10 +52,10 @@ public class Airport implements Data{
 	}
 	
 	
-	public int getX() {
+	public float getX() {
 		return x;
 	}
-	public int getY() {
+	public float getY() {
 		return y;
 	}
 	public String getName() {

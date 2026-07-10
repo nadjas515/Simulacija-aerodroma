@@ -62,6 +62,8 @@ public class Window extends JFrame {
         sim=new Simulation(()->{
             timeLabel.setText("Time: " + TimeUtil.format(sim.getTime()));
             Window.this.repaint();
+        },()->{
+            new InfoDialog(Window.this,"Gotova simulacija");
         });
 
         buttons.add(timeLabel);
@@ -118,7 +120,7 @@ public class Window extends JFrame {
             JFileChooser chooser = new JFileChooser();
             setFontRecursively(chooser, new Font("Verdana", Font.PLAIN, 30));
             chooser.setPreferredSize(new Dimension(800, 600));
-            chooser.setCurrentDirectory(new File("files"));   // startuj u folderu "files" (opciono)
+            chooser.setCurrentDirectory(new File("./"));   // startuj u folderu "files" (opciono)
             chooser.setFileFilter(new FileNameExtensionFilter("CSV i JSON", "csv", "json"));  // opciono
             int result = chooser.showOpenDialog(Window.this);
             if (result == JFileChooser.APPROVE_OPTION) {

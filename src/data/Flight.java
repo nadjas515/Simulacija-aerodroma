@@ -27,6 +27,12 @@ public class Flight{
 	public int getMin() {
 		return min;
 	}
+	public int getPlannedH() {
+		return plannedH;
+	}
+	public int getPlannedMin() {
+		return plannedMin;
+	}
 	public int getDuration() {
 		return duration;
 	}

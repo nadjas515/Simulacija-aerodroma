@@ -28,8 +28,8 @@ public class JSONWriter extends Writer {
 			AirportJson aj = new AirportJson();
 			aj.code = a.getCode();
 			aj.name = a.getName();
-			aj.x = a.getX();
-			aj.y = a.getY();
+			aj.x = (int) a.getX();
+			aj.y = (int) a.getY();
 			w.airports[i] = aj;
 		}
 
@@ -40,7 +40,7 @@ public class JSONWriter extends Writer {
 			FlightJson fj = new FlightJson();
 			fj.from = f.getStart().getCode();
 			fj.to = f.getEnd().getCode();
-			fj.departure = String.format("%02d:%02d", f.getH(), f.getMin());
+			fj.departure = String.format("%02d:%02d", f.getPlannedH(), f.getPlannedMin());
 			fj.duration = f.getDuration();
 			w.flights[i] = fj;
 		}

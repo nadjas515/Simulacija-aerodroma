@@ -10,10 +10,12 @@ public class Simulation {
     private int time;
     private Timer clock;
 
-    public Simulation(Runnable runnable) {
+    public Simulation(Runnable runnable,Runnable finished) {
         clock=new Timer(200, e -> {
             if(!Flight.getFlights().isEmpty() && Airplane.allFinished()){
                 clock.stop();
+                finished.run();
+                return;
             }
             time+=2;   // 200ms -> 2 sim-minuta (1s = 10min)
             Airplane.move(time);

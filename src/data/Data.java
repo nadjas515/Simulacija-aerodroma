@@ -1,6 +1,6 @@
 package data;
 
 public interface Data {
-    int getX();
-    int getY();
+    float getX();
+    float getY();
 }
