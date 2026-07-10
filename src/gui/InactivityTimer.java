@@ -12,6 +12,8 @@ public class InactivityTimer extends Thread {
     private volatile int elapsed = 0;
     private WarningDialog warning;          // menja se samo na EDT-u
 
+    private volatile boolean pause=false;
+
     public InactivityTimer(Frame owner) {
         this.owner = owner;
         setDaemon(true);   // nit ne drži program otvorenim
@@ -26,14 +28,26 @@ public class InactivityTimer extends Thread {
         }
     }
 
+    public void pause() {
+        pause = true;
+    }
+
+    public void cont() {
+        pause = false;
+    }
+
     @Override
     public void run() {
         while (true) {
+
             try {
                 Thread.sleep(1000);   // odspavaj 1s
             } catch (InterruptedException e) {
                 // ignore
             }
+            if (pause)
+                continue;
+
             elapsed++;
             int remaining = LIMIT - elapsed;
 

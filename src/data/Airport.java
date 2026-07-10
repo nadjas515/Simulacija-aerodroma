@@ -1,5 +1,6 @@
 package data;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +13,7 @@ public class Airport extends Data{
 	int x,y;
 	String name;
 	String code;
+	boolean visible;
 	
 	
 	public Airport(int x, int y, String name, String code) {
@@ -20,6 +22,7 @@ public class Airport extends Data{
 		this.y = y;
 		this.name = name;
 		this.code = code;
+		this.visible = false;
 	}
 	
 	public static void addAirport(int x, int y, String name, String code) throws AirportExists {
@@ -55,6 +58,7 @@ public class Airport extends Data{
 	public String getCode() {
 		return code;
 	}
+	public boolean isVisible() {return visible;}
 	
 	public static Airport findAirport(String code) throws AirportNotExists{
 		for(Airport airp : airports) {
@@ -62,6 +66,14 @@ public class Airport extends Data{
 				return airp;
 		}
 		throw new AirportNotExists(code);
+	}
+
+	public static boolean showAll() {
+		for(Airport airp : airports) {
+			if(airp.visible)
+				return false;
+		}
+		return true;
 	}
 	
 	@Override
@@ -76,7 +88,10 @@ public class Airport extends Data{
 	}
 
 	public Object[] toRow() {
-		return new Object[]{ code, name, x, y };
+		return new Object[]{ code, name, x, y , visible};
 	}
-	
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
 }
