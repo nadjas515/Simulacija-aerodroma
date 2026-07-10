@@ -2,7 +2,7 @@ package util;
 
 public class TimeUtil {
     public static String format(int totalMinutes) {            // 510 -> "08:30"
-        return String.format("%02d:%02d", hours(totalMinutes), minutes(totalMinutes));
+        return String.format("%02d:%02d", hours(totalMinutes)%24, minutes(totalMinutes));
     }
     public static int toMinutes(int h, int min) {              // (8,30) -> 510
         return h * 60 + min;

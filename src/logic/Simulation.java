@@ -2,11 +2,11 @@ package logic;
 
 import data.Airplane;
 import data.Flight;
-import gui.InactivityTimer;
+import gui.InfoDialog;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Random;
+import gui.Window;
 
 public class Simulation {
     private int time;

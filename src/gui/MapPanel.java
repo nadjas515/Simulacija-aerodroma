@@ -63,6 +63,12 @@ public class MapPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        g.setColor(Color.black);
+        g.drawLine(0,getHeight()/2, getWidth(), getHeight()/2);
+
+        g.drawLine(getWidth()/2,0, getWidth()/2, getHeight());
+
         java.util.List<Airport> airports = Airport.getAirports();
 
         boolean showEverything = Airport.showAll();

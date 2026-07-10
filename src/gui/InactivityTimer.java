@@ -12,7 +12,6 @@ public class InactivityTimer extends Thread {
     private static final int WARN  = 5;    // poslednjih 5s ide upozorenje sa odbrojavanjem
 
     private final Frame owner;
-    private volatile int elapsed = 0;
     private WarningDialog warning;          // menja se samo na EDT-u
 
     private volatile boolean pause=false;
@@ -24,7 +23,7 @@ public class InactivityTimer extends Thread {
 
     // poziva se na svaku akciju korisnika -> vrati brojač na 0 i zatvori upozorenje
     public void reset() {
-        elapsed = 0;
+        interrupt();
         if (warning != null) {
             warning.dispose();
             warning = null;
@@ -42,40 +41,35 @@ public class InactivityTimer extends Thread {
     @Override
     public void run() {
         while (true) {
-
             try {
-                Thread.sleep(1000);   // odspavaj 1s
+                Thread.sleep((LIMIT-WARN)*1000);   // odspavaj 1s
             } catch (InterruptedException e) {
-                // ignore
-            }
-            if(!Flight.getFlights().isEmpty() && Airplane.allFinished() && pause){
-                pause=false;
-                elapsed=0;
-            }
-            if (pause)
                 continue;
-
-            elapsed++;
-            int remaining = LIMIT - elapsed;
-
-            if (remaining <= 0) {
-                // 60s neaktivnosti -> zatvori program
-                EventQueue.invokeLater(() -> {
-                    owner.dispose();
-                    System.exit(0);
-                });
-                return;
+            }
+            if(pause){
+                if(!Flight.getFlights().isEmpty() && Airplane.allFinished())
+                    pause=false;
+                else
+                    continue;
+            }
+            try {
+                for(int i=0;i<WARN;i++){
+                    Thread.sleep(1000);
+                    final int rem = WARN-i;
+                    EventQueue.invokeLater(() -> {
+                        if (warning == null)
+                            warning = new WarningDialog(owner, this);
+                        warning.setRemaining(rem);
+                    });
+                }
+            } catch (InterruptedException ex) {
+                continue;
             }
 
-            if (remaining <= WARN) {
-                // poslednjih 5s: prikaži/osveži dijalog sa preostalim vremenom
-                final int rem = remaining;
-                EventQueue.invokeLater(() -> {
-                    if (warning == null)
-                        warning = new WarningDialog(owner, this);
-                    warning.setRemaining(rem);
-                });
-            }
+            EventQueue.invokeLater(() -> {
+                owner.dispose();
+                System.exit(0);
+            });
         }
     }
 }

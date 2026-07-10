@@ -35,7 +35,7 @@ public class WarningDialog extends JDialog {
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                timer.reset();   // zatvaranje "X"-om tumačimo kao "nastavi rad"
+                timer.interrupt();   // zatvaranje "X"-om tumačimo kao "nastavi rad"
             }
         });
 

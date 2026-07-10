@@ -14,14 +14,16 @@ import javax.swing.*;                       // JFrame, JButton, JLabel, JTextFie
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel; // model tabele
 import java.awt.*;                          // layout-i, Font, Toolkit, AWTEvent
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 // U Swing-u glavni prozor je JFrame (umesto AWT Frame)
-class Window extends JFrame {
+public class Window extends JFrame {
     private InactivityTimer timer;
     // modeli tabela su POLJA klase - da bi refresh() mogao da ih puni sa bilo kog mesta
     private final DefaultTableModel airportModel =
@@ -39,6 +41,8 @@ class Window extends JFrame {
 
     private Simulation sim;
 
+    private static final Font FONT = new Font("Verdana", Font.PLAIN, 40);
+
     Window() {
         super("Airport");
         this.setSize(3000, 1800);
@@ -53,56 +57,65 @@ class Window extends JFrame {
                                                            // (visina 0 nije bitna - CENTER prozora je diktira)
 
         // ---------- dugmad (NORTH) ----------
-        JButton inputAirport = new JButton("Input airport");
-        inputAirport.setFont(new Font("Verdana", Font.PLAIN, 40));
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new GridLayout(0, 1, 5, 5));  // 1 kolona, koliko god redova, razmak 5px
+
+        JLabel timeLabel = makeLabel("Time: 00:00");
+        sim=new Simulation(()->{
+            timeLabel.setText("Time: " + TimeUtil.format(sim.getTime()));
+            Window.this.repaint();
+        });
+
+        buttons.add(timeLabel);
+
+        JButton startButton = makeButton("Start",buttons);
+        startButton.addActionListener(e -> {
+            if (Flight.getFlights().isEmpty()) {
+                new ErrorDialog(Window.this, "Nema letova za simulaciju");
+                return;   // ne pokreći sat
+            }
+            Flight.reschedule();
+            sim.startTimer();
+            timer.pause();
+        });
+
+        JButton pauseButton = makeButton("Pause",buttons);
+        pauseButton.addActionListener(e -> {
+            sim.pauseTimer();
+            timer.cont();
+        });
+
+        JButton stopButton = makeButton("Stop",buttons);
+        stopButton.addActionListener(e -> {
+            sim.stopTimer();
+            timeLabel.setText("Time: 00:00");
+            timer.cont();
+            mapPanel.repaint();
+        });
+
+
+        JButton inputAirport = makeButton("Input Airport",buttons);
         inputAirport.addActionListener(e -> {
             new InputAirport(Window.this);   // modalni dijalog - blokira dok se ne zatvori
             refresh();                        // po zatvaranju osveži tabelu (možda je dodat aerodrom)
             mapPanel.repaint();
         });
 
-        JButton inputFlight = new JButton("Input flight");
-        inputFlight.setFont(new Font("Verdana", Font.PLAIN, 40));
+        JButton inputFlight = makeButton("Input flight",buttons);
         inputFlight.addActionListener(e -> {
             new InputFlight(Window.this);
             refresh();
             mapPanel.repaint();
         });
 
-        JLabel input_file_label = new JLabel("Input file:");
-        input_file_label.setFont(new Font("Verdana", Font.PLAIN, 40));
 
-        JTextField input_file = new JTextField(10);
-        input_file.setFont(new Font("Verdana", Font.PLAIN, 40));
+        JLabel input_file_label = makeLabel("Input file:");
 
-        JButton load = new JButton("Load");
-        load.setFont(new Font("Verdana", Font.PLAIN, 40));
-        load.addActionListener(e -> {
-            String filename = input_file.getText();
-            String ext = filename.substring(filename.lastIndexOf('.') + 1);
-            Reader reader;
-            if (ext.equals("json")) {
-                reader = new JSONReader();
-            } else if (ext.equals("csv")) {
-                reader = new CSVReader();
-            } else {
-                new ErrorDialog(Window.this, "Ne valja format fajla, prihvata se samo csv i json");
-                return;
-            }
-            try {
-                reader.read(filename);
-                refresh();                                       // prikaži učitane podatke u tabeli
-                new InfoDialog(Window.this, "Uspešno učitano");
-            } catch (IOException ex) {
-                new ErrorDialog(Window.this, "Fajl se ne može pročitati");
-            } catch (FileNotExists | FormatException | AirportNotExists | AirportExists ex) {
-                new ErrorDialog(Window.this, ex.getMessage());
-            }
-            mapPanel.repaint();
-        });
+        buttons.add(input_file_label);
 
-        JButton browse = new JButton("Browse...");
-        browse.setFont(new Font("Verdana", Font.PLAIN, 40));
+        JTextField input_file = makeField(10);
+
+        JButton browse = makeButton("Browse...",null);
         browse.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
             setFontRecursively(chooser, new Font("Verdana", Font.PLAIN, 30));
@@ -120,23 +133,43 @@ class Window extends JFrame {
         browsePanel.add(input_file, BorderLayout.CENTER);   // polje se RASTEGNE na sav prostor
         browsePanel.add(browse, BorderLayout.EAST);         // dugme ostane svoje širine, desno
 
-        JLabel output_file_label = new JLabel("Output file:");
-        output_file_label.setFont(new Font("Verdana", Font.PLAIN, 40));
+        buttons.add(browsePanel);
 
-        JTextField output_file = new JTextField(10);
-        output_file.setFont(new Font("Verdana", Font.PLAIN, 40));
+        JButton load = makeButton("Load",buttons);
+        load.addActionListener(e -> {
+            String filename = input_file.getText();
+            Reader reader = readerFor(extensionOf(input_file.getText()));
+            if(reader==null){
+                new ErrorDialog(Window.this, "Ne valja format fajla, prihvata se samo csv i json");
+                return;
+            }
+            try {
+                reader.read(filename);
+                refresh();                                       // prikaži učitane podatke u tabeli
+                new InfoDialog(Window.this, "Uspešno učitano");
+            } catch (IOException ex) {
+                new ErrorDialog(Window.this, "Fajl se ne može pročitati");
+            } catch (FileNotExists | FormatException | AirportNotExists | AirportExists ex) {
+                new ErrorDialog(Window.this, ex.getMessage());
+            }
+            mapPanel.repaint();
+        });
 
-        JButton save = new JButton("Save");
-        save.setFont(new Font("Verdana", Font.PLAIN, 40));
+
+
+        JLabel output_file_label = makeLabel("Output file:");
+
+        buttons.add(output_file_label);
+
+        JTextField output_file = makeField(10);
+
+        buttons.add(output_file);
+
+        JButton save = makeButton("Save",buttons);
         save.addActionListener(e -> {
             String filename = output_file.getText();
-            String ext = filename.substring(filename.lastIndexOf('.') + 1);
-            Writer writer;
-            if (ext.equals("json")) {
-                writer = new JSONWriter();
-            } else if (ext.equals("csv")) {
-                writer = new CSVWriter();
-            } else {
+            Writer writer = writerFor(extensionOf(filename));
+            if(writer==null){
                 new ErrorDialog(Window.this, "Ne valja format fajla, prihvata se samo csv i json");
                 return;
             }
@@ -150,72 +183,21 @@ class Window extends JFrame {
         });
 
 
-        JLabel timeLabel = new JLabel("Time: 00:00");
-        timeLabel.setFont(new Font("Verdana", Font.PLAIN, 40));
-        sim=new Simulation(()->{
-            timeLabel.setText("Time: " + TimeUtil.format(sim.getTime()));
-            Window.this.repaint();
-        });
+
 
         // isprazni sve podatke (npr. pre učitavanja novog fajla, da nema duplikata)
-        JButton clear = new JButton("Clear");
-        clear.setFont(new Font("Verdana", Font.PLAIN, 40));
+        JButton clear = makeButton("Clear",buttons);
         clear.addActionListener(e -> {
             sim.stopTimer();
             timeLabel.setText("Time: 00:00");
             timer.cont();
             Flight.clearAll();
-            Airplane.clearAll();
+            Airport.clearAll();
             refresh();
             mapPanel.repaint();
         });
 
-        JPanel buttons = new JPanel();
-        buttons.setLayout(new GridLayout(0, 1, 5, 5));  // 1 kolona, koliko god redova, razmak 5px
 
-
-        JButton startButton = new JButton("Start");
-        startButton.setFont(new Font("Verdana", Font.PLAIN, 40));
-        startButton.addActionListener(e -> {
-            if (Flight.getFlights().isEmpty()) {
-                new ErrorDialog(Window.this, "Nema letova za simulaciju");
-                return;   // ne pokreći sat
-            }
-            Flight.reschedule();
-            sim.startTimer();
-            timer.pause();
-        });
-
-        JButton pauseButton = new JButton("Pause");
-        pauseButton.setFont(new Font("Verdana", Font.PLAIN, 40));
-        pauseButton.addActionListener(e -> {
-            sim.pauseTimer();
-            timer.cont();
-        });
-
-        JButton stopButton = new JButton("Stop");
-        stopButton.setFont(new Font("Verdana", Font.PLAIN, 40));
-        stopButton.addActionListener(e -> {
-            sim.stopTimer();
-            timeLabel.setText("Time: 00:00");
-
-            timer.cont();
-            mapPanel.repaint();
-        });
-
-        buttons.add(timeLabel);
-        buttons.add(startButton);
-        buttons.add(pauseButton);
-        buttons.add(stopButton);
-        buttons.add(inputAirport);
-        buttons.add(inputFlight);
-        buttons.add(input_file_label);
-        buttons.add(browsePanel);
-        buttons.add(load);
-        buttons.add(output_file_label);
-        buttons.add(output_file);
-        buttons.add(save);
-        buttons.add(clear);
         sidebar.add(buttons, BorderLayout.NORTH);
 
 
@@ -233,21 +215,13 @@ class Window extends JFrame {
 
         // ---------- tabele (CENTER) ----------
         JTable airportTable = new JTable(airportModel);
-        configureTable(airportTable);
-        // širine kolona za tabelu aerodroma
-        airportTable.getColumnModel().getColumn(0).setPreferredWidth(120);   // Code
-        airportTable.getColumnModel().getColumn(1).setPreferredWidth(300);   // Name
-        airportTable.getColumnModel().getColumn(2).setPreferredWidth(100);   // X
-        airportTable.getColumnModel().getColumn(3).setPreferredWidth(100);   // Y
-        airportTable.getColumnModel().getColumn(4).setPreferredWidth(100);   // Y
+        int cols[]=new int[]{120,300,100,100,100};
+        configureTable(airportTable,cols);
+
 
         JTable flightTable = new JTable(flightModel);
-        configureTable(flightTable);
-
-        flightTable.getColumnModel().getColumn(0).setPreferredWidth(100);
-        flightTable.getColumnModel().getColumn(1).setPreferredWidth(100);
-        flightTable.getColumnModel().getColumn(2).setPreferredWidth(150);
-        flightTable.getColumnModel().getColumn(3).setPreferredWidth(150);
+        cols= new int[]{100, 100, 150, 150};
+        configureTable(flightTable,cols);
 
         // dve tabele u tabovima "Airports" / "Flights"
         JTabbedPane tabs = new JTabbedPane();
@@ -285,10 +259,13 @@ class Window extends JFrame {
     }
 
     // zajedničko podešavanje izgleda tabele (font, visina reda, font zaglavlja)
-    private void configureTable(JTable table) {
+    private void configureTable(JTable table,int cols[]) {
         table.setRowHeight(50);
         table.setFont(new Font("Verdana", Font.PLAIN, 25));
         table.getTableHeader().setFont(new Font("Verdana", Font.BOLD, 30));
+        for(int i=0;i<cols.length;i++){
+            table.getColumnModel().getColumn(i).setPreferredWidth(cols[i]);
+        }
     }
 
     // puni obe tabele iz trenutnih podataka - zove se posle svakog unosa i Load-a
@@ -303,6 +280,39 @@ class Window extends JFrame {
             flightModel.addRow(f.toRow());
     }
 
+    private JButton makeButton(String label,JPanel panel) {
+        JButton button = new JButton(label);
+        button.setFont(FONT);
+        if(panel!=null) panel.add(button);
+        return button;
+    }
+
+    private JLabel makeLabel(String text) {
+        JLabel l = new JLabel(text);
+        l.setFont(FONT);
+        return l;
+    }
+    private JTextField makeField(int cols) {
+        JTextField f = new JTextField(cols);
+        f.setFont(FONT);
+        return f;
+    }
+
+    private String extensionOf(String filename) {
+        return filename.substring(filename.lastIndexOf('.') + 1);
+    }
+
+    private Reader readerFor(String ext) {
+        if (ext.equals("json")) return new JSONReader();
+        if (ext.equals("csv"))  return new CSVReader();
+        return null;   // pozivalac prikaže grešku
+    }
+
+    private Writer writerFor(String ext) {
+        if (ext.equals("json")) return new JSONWriter();
+        if (ext.equals("csv"))  return new CSVWriter();
+        return null;   // pozivalac prikaže grešku
+    }
 
 
     public static void main(String[] args) {
