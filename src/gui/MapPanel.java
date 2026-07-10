@@ -1,6 +1,9 @@
 package gui;
 
 import data.Airport;
+import data.Data;
+import data.Flight;
+import util.MapProjection;
 
 import javax.swing.*;
 import java.awt.*;
@@ -60,7 +63,6 @@ public class MapPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         java.util.List<Airport> airports = Airport.getAirports();
 
         boolean showEverything = Airport.showAll();
@@ -74,6 +76,15 @@ public class MapPanel extends JPanel {
             g.fillRect(r.x, r.y, r.width, r.height);
         }
 
+        java.util.List<Flight> flights = Flight.getFlights();
+
+        for(Flight f : flights){
+            if(((!f.getStart().isVisible() || !f.getEnd().isVisible()) && !showEverything) || !f.getPlane().getFlying()) continue;
+            Rectangle r = getRect(f.getPlane());
+            g.setColor(Color.BLUE);
+            g.fillOval(r.x, r.y, r.width, r.height);
+        }
+
         // 2. PROLAZ: kodovi preko svih kvadrata
         g.setColor(Color.BLACK);
         g.setFont(new Font("Verdana", Font.BOLD, FONT_SIZE));
@@ -85,11 +96,10 @@ public class MapPanel extends JPanel {
     }
 
     // pravougaonik kvadrata za dati aerodrom (računa W/H iz trenutne veličine panela)
-    private Rectangle getRect(Airport a) {
-        int W = getWidth() / 2;
-        int H = getHeight() / 2;
-        int px = (int) ((1 + a.getX() / 180.0) * W);
-        int py = (int) ((1 - a.getY() / 90.0) * H);
+    private Rectangle getRect(Data a) {
+        int px = MapProjection.toPixelX(a.getX(), getWidth());
+        int py = MapProjection.toPixelY(a.getY(), getHeight());
         return new Rectangle(px - SIZE / 2, py - SIZE / 2, SIZE, SIZE);
     }
+
 }

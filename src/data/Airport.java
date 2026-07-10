@@ -6,8 +6,9 @@ import java.util.List;
 
 import exceptions.AirportExists;
 import exceptions.AirportNotExists;
+import exceptions.FormatException;
 
-public class Airport extends Data{
+public class Airport implements Data{
 	static List<Airport> airports = new ArrayList<>();
 	
 	int x,y;
@@ -25,7 +26,12 @@ public class Airport extends Data{
 		this.visible = false;
 	}
 	
-	public static void addAirport(int x, int y, String name, String code) throws AirportExists {
+	public static void addAirport(int x, int y, String name, String code) throws AirportExists, FormatException {
+		if(code == null || code.length() != 3)
+			throw new FormatException("Kod mora imati tačno 3 slova: " + code);
+		for(char c : code.toCharArray())
+			if(!Character.isUpperCase(c))
+				throw new FormatException("Kod mora biti samo velika slova: " + code);
 		for(Airport airp : airports) {
 			if(airp.code.equals(code))
 				throw new AirportExists(code);
@@ -93,5 +99,14 @@ public class Airport extends Data{
 
 	public void setVisible(boolean visible) {
 		this.visible = visible;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(obj==null) return false;
+		if(!(obj instanceof Airport)) return false;
+		if(obj==this) return true;
+		Airport airp = (Airport)obj;
+		return this.code.equals(airp.code);
 	}
 }

@@ -40,7 +40,6 @@ public class CSVReader extends Reader {
 			Airport.addAirport(x, y, parts[1], parts[0]);
 			line = br.readLine();
 		}
-		Airport.printAirports();
 
 		line = br.readLine();
 		if(line==null || !line.equals("# FLIGHTS"))
@@ -67,7 +66,6 @@ public class CSVReader extends Reader {
 			Flight.addFlights(a1, a2, h, min, dur);
 			line = br.readLine();
 		}
-		Flight.printFlights();
 	}
 
 	public static void main(String[] args) {

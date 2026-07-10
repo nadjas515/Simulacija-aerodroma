@@ -59,9 +59,6 @@ public class JSONReader extends Reader {
 			}
 			Flight.addFlights(start, end, h, min, f.duration);
 		}
-
-		Airport.printAirports();
-		Flight.printFlights();
 	}
 
 	public static void main(String[] args) {

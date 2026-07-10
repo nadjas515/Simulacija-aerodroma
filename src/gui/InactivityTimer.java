@@ -1,5 +1,8 @@
 package gui;
 
+import data.Airplane;
+import data.Flight;
+
 import java.awt.EventQueue;
 import java.awt.Frame;
 
@@ -44,6 +47,10 @@ public class InactivityTimer extends Thread {
                 Thread.sleep(1000);   // odspavaj 1s
             } catch (InterruptedException e) {
                 // ignore
+            }
+            if(!Flight.getFlights().isEmpty() && Airplane.allFinished() && pause){
+                pause=false;
+                elapsed=0;
             }
             if (pause)
                 continue;

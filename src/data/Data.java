@@ -1,5 +1,6 @@
 package data;
 
-public class Data {
-
+public interface Data {
+    int getX();
+    int getY();
 }
