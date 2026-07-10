@@ -14,12 +14,10 @@ import javax.swing.*;                       // JFrame, JButton, JLabel, JTextFie
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel; // model tabele
 import java.awt.*;                          // layout-i, Font, Toolkit, AWTEvent
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 
 // U Swing-u glavni prozor je JFrame (umesto AWT Frame)
@@ -193,6 +191,7 @@ public class Window extends JFrame {
             timer.cont();
             Flight.clearAll();
             Airport.clearAll();
+            Airplane.clearAll();
             refresh();
             mapPanel.repaint();
         });

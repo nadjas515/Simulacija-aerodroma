@@ -48,6 +48,7 @@ public class Airplane implements Data {
             a.x = a.flight.start.x;
             a.y = a.flight.start.y;
             a.flying = false;
+            a.finished = false;
         }
     }
 
