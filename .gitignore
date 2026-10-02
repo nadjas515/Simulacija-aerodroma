@@ -1,3 +1,21 @@
+# Build
+bin/
+out/
+*.class
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Podaci koje aplikacija snima
 *.csv
 *.json
-*.class
+
+# Sistem
+.DS_Store
+Thumbs.db
