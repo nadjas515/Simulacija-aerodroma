@@ -18,7 +18,7 @@ public class CSVReader extends Reader {
 		String line = br.readLine();
 		if(!line.equals("# AIRPORTS"))
 			throw new FormatException("Nedostaje linija # AIRPORTS");
-		br.readLine();   // preskoči zaglavlje kolona (CODE,NAME,X,Y)
+		br.readLine();   // skip the column header (CODE,NAME,X,Y)
 		line = br.readLine();
 		while(line!=null && !line.isEmpty()) {
 			String[] parts = line.split(",");
@@ -44,7 +44,7 @@ public class CSVReader extends Reader {
 		line = br.readLine();
 		if(line==null || !line.equals("# FLIGHTS"))
 			throw new FormatException("Nedostaje linija # FLIGHTS");
-		br.readLine();   // preskoči zaglavlje kolona (FROM,TO,DEPARTURE,DURATION)
+		br.readLine();   // skip the column header (FROM,TO,DEPARTURE,DURATION)
 		line = br.readLine();
 		while(line!=null && !line.isEmpty()) {
 			String[] parts = line.split(",");

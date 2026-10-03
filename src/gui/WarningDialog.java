@@ -5,14 +5,14 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-// Dijalog sa odbrojavanjem u poslednjih 5s neaktivnosti.
-// Ostaje sopstvena klasa (a ne JOptionPane) jer se tekst mora osvežavati svake sekunde.
+// Countdown dialog shown during the last 5 s of inactivity.
+// A custom class (not JOptionPane) because the text has to be updated every second.
 public class WarningDialog extends JDialog {
 
     private final JLabel label;
 
     public WarningDialog(Frame owner, InactivityTimer timer) {
-        super(owner, "Neaktivnost", false);   // treći argument false = NE-modalni (da ga tajmer osvežava)
+        super(owner, "Neaktivnost", false);   // third argument false = NON-modal (so the timer can update it)
         this.setLayout(new BorderLayout(10, 10));
 
         label = new JLabel("", SwingConstants.CENTER);
@@ -22,7 +22,7 @@ public class WarningDialog extends JDialog {
 
         JButton cont = new JButton("Nastavi");
         cont.setFont(new Font("Verdana", Font.PLAIN, 24));
-        cont.addActionListener(e -> timer.reset());   // reset ujedno gasi ovaj dijalog
+        cont.addActionListener(e -> timer.reset());   // reset also closes this dialog
         JPanel p = new JPanel(new FlowLayout());
         p.add(cont);
         this.add(p, BorderLayout.SOUTH);
@@ -30,19 +30,19 @@ public class WarningDialog extends JDialog {
         this.setSize(700, 200);
         this.setLocationRelativeTo(owner);
 
-        // ovde NE koristimo setDefaultCloseOperation jer na zatvaranje "X"-om
-        // hoćemo posebnu akciju (reset tajmera), a ne samo dispose
+        // setDefaultCloseOperation is NOT used here, because closing with "X"
+        // should reset the timer, not just dispose the dialog
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                timer.interrupt();   // zatvaranje "X"-om tumačimo kao "nastavi rad"
+                timer.interrupt();   // closing with "X" means "continue working"
             }
         });
 
         this.setVisible(true);
     }
 
-    // tajmer poziva ovo svake sekunde da osveži preostalo vreme
+    // called by the timer every second to update the remaining time
     public void setRemaining(int seconds) {
         label.setText("Zatvaranje za " + seconds + " s. Nastaviti rad?");
     }

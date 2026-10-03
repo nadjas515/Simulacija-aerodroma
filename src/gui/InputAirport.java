@@ -5,24 +5,24 @@ import exceptions.AirportExists;
 import exceptions.FormatException;
 
 import javax.swing.*;   // JDialog, JPanel, JLabel, JTextField, JButton, BorderFactory, SwingConstants
-import java.awt.*;      // layout-i (BorderLayout, GridLayout, FlowLayout), Font
+import java.awt.*;      // layouts (BorderLayout, GridLayout, FlowLayout), Font
 
-// U Swing-u dijalog je JDialog (umesto AWT Dialog)
+// Dialog for adding a new airport
 public class InputAirport extends JDialog {
 
     public InputAirport(Frame owner) {
         super(owner);
         this.setLayout(new BorderLayout(5, 5));
-        this.setModal(true);                                     // blokira glavni prozor dok je otvoren
-        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); // "X" zatvara dijalog
+        this.setModal(true);                                     // blocks the main window while open
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); // "X" closes the dialog
 
-        // Margina oko celog sadržaja - Swing zamena za stari override getInsets().
-        // getContentPane() je podrazumevano JPanel, pa mu možemo dati "prazan" okvir (padding).
+        // Padding around the whole content.
+        // getContentPane() is a JPanel by default, so it can be given an empty border (padding).
         ((JPanel) this.getContentPane()).setBorder(BorderFactory.createEmptyBorder(50, 60, 50, 60));
 
-        JPanel p = new JPanel(new GridLayout(0, 2, 50, 10));  // 2 kolone: labela + polje
+        JPanel p = new JPanel(new GridLayout(0, 2, 50, 10));  // 2 columns: label + field
 
-        // JLabel: poravnanje desno se zadaje kroz SwingConstants.RIGHT (umesto Label.RIGHT)
+        // right-aligned labels
         JLabel name_label = new JLabel("Name:", SwingConstants.RIGHT);
         name_label.setFont(new Font("Verdana", Font.PLAIN, 40));
         p.add(name_label);
@@ -55,7 +55,7 @@ public class InputAirport extends JDialog {
         JButton ok = new JButton("OK");
         ok.setFont(new Font("Verdana", Font.PLAIN, 40));
 
-        // logika validacije je ista kao pre - Swing menja samo komponente, ne i logiku
+        // input validation
         ok.addActionListener(e -> {
             String nameVal = name.getText();
             String codeVal = code.getText();
@@ -68,7 +68,7 @@ public class InputAirport extends JDialog {
                 }
                 boolean codeOk = codeVal.length() == 3;
                 for (char c : codeVal.toCharArray())
-                    if (!Character.isUpperCase(c))   // isUpperCase je true SAMO za velika slova (ne cifre)
+                    if (!Character.isUpperCase(c))   // isUpperCase is true ONLY for uppercase letters (not digits)
                         codeOk = false;
                 if (!codeOk) {
                     throw new FormatException("Kod treba da bude tačno 3 velika slova");
@@ -94,10 +94,10 @@ public class InputAirport extends JDialog {
 
         button_panel.add(ok);
 
-        this.add(p, BorderLayout.CENTER);             // labele + polja (dve kolone)
-        this.add(button_panel, BorderLayout.SOUTH);   // OK preko cele širine
-        this.pack();                                  // veličina prema sadržaju
-        this.setLocationRelativeTo(owner);            // centriraj preko glavnog prozora
+        this.add(p, BorderLayout.CENTER);             // labels + fields (two columns)
+        this.add(button_panel, BorderLayout.SOUTH);   // full-width OK button
+        this.pack();                                  // size to fit the content
+        this.setLocationRelativeTo(owner);            // center over the main window
         this.setVisible(true);
     }
 }

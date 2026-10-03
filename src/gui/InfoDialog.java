@@ -3,7 +3,7 @@ package gui;
 import javax.swing.*;
 import java.awt.*;
 
-// Swing dijalog za obaveštenje/uspeh (zeleni tekst)
+// Dialog for information/success messages (green text)
 public class InfoDialog extends JDialog {
 
     InfoDialog(java.awt.Window owner, String msg) {
@@ -11,7 +11,7 @@ public class InfoDialog extends JDialog {
 
         JLabel title = new JLabel(msg, SwingConstants.CENTER);
         title.setFont(new Font("Verdana", Font.BOLD, 30));
-        title.setForeground(new Color(0, 140, 0));   // zelena - obaveštenje/uspeh
+        title.setForeground(new Color(0, 140, 0));   // green = information/success
         this.add(title);
 
         this.setSize(800, 200);

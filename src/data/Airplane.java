@@ -7,8 +7,8 @@ import util.TimeUtil;
 
 public class Airplane implements Data {
     private Flight flight;
-    private int startTime, endTime;   // sim-vreme poletanja i sletanja (u minutima)
-    private float x, y;               // trenutna pozicija (koordinate)
+    private int startTime, endTime;   // simulated take-off and landing time (in minutes)
+    private float x, y;               // current position (coordinates)
     private boolean flying,finished;
     private static List<Airplane> airplanes = new ArrayList<Airplane>();
 
@@ -23,8 +23,8 @@ public class Airplane implements Data {
         airplanes.add(this);
     }
 
-    // Pozicija se računa DIREKTNO iz simuliranog vremena (interpolacija).
-    // Radi tačno bez obzira na korak tajmera (100ms, 200ms...) - nema akumulacije greške.
+    // The position is computed DIRECTLY from the simulated time (interpolation).
+    // It is exact regardless of the timer step (100ms, 200ms...), so no error accumulates.
     public static void move(int time) {
         for (Airplane a : airplanes) {
             if (time >= a.startTime && time < a.endTime) {
@@ -33,7 +33,7 @@ public class Airplane implements Data {
                 a.x = a.flight.start.x + (a.flight.end.x - a.flight.start.x) * progress;
                 a.y = a.flight.start.y + (a.flight.end.y - a.flight.start.y) * progress;
             } else {
-                a.flying = false;   // pre poletanja ili posle sletanja - ne prikazuje se
+                a.flying = false;   // before take-off or after landing: not shown
                 if (time >= a.endTime) a.finished = true;
             }
         }
@@ -58,7 +58,7 @@ public class Airplane implements Data {
         airplanes.clear();
     }
 
-    // posle preraspoređivanja (pravilo 10 min) osveži vreme poletanja/sletanja
+    // after rescheduling (10-minute rule), update the take-off/landing times
     public static void reschedule() {
         for (Airplane a : airplanes) {
             a.startTime = TimeUtil.toMinutes(a.flight.h, a.flight.min);

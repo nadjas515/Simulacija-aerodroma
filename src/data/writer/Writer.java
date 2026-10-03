@@ -11,7 +11,7 @@ public abstract class Writer {
 	public abstract void process(BufferedWriter bw) throws IOException;
 
 
-	// simetrično sa Reader.read - otvori fajl, a pisanje prepusti konkretnom writeru
+	// mirrors Reader.read: opens the file and leaves the writing to the concrete writer
 	public void write(String filename) throws IOException {
 		Path path = Paths.get(filename);
 		try (BufferedWriter bw = Files.newBufferedWriter(path)) {

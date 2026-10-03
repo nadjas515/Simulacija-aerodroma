@@ -32,7 +32,7 @@ public class JSONReader extends Reader {
 		if (w == null || w.airports == null || w.flights == null)
 			throw new FormatException("Fajl ne sadrži očekivane sekcije 'airports' i 'flights'.");
 
-		// aerodromi -> u tvoju listu
+		// airports -> into the airport list
 		for (AirportJson a : w.airports) {
 			if(Math.abs(a.x)>180)
 				throw new FormatException("Aerodrom " + a.code + ": X koordinata (" + a.x
@@ -43,7 +43,7 @@ public class JSONReader extends Reader {
 			Airport.addAirport(a.x, a.y, a.name, a.code);
 		}
 
-		// letovi -> u tvoju listu
+		// flights -> into the flight list
 		for (FlightJson f : w.flights) {
 			Airport start = Airport.findAirport(f.from);
 			Airport end   = Airport.findAirport(f.to);

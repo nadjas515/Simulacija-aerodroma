@@ -8,7 +8,7 @@ import exceptions.FormatException;
 import javax.swing.*;
 import java.awt.*;
 
-// U Swing-u dijalog je JDialog (umesto AWT Dialog)
+// Dialog for adding a new flight
 public class InputFlight extends JDialog {
 
     public InputFlight(Frame owner) {
@@ -16,10 +16,10 @@ public class InputFlight extends JDialog {
         this.setLayout(new BorderLayout(5, 5));
         this.setModal(true);
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        // margina oko sadržaja (Swing zamena za getInsets)
+        // padding around the content
         ((JPanel) this.getContentPane()).setBorder(BorderFactory.createEmptyBorder(50, 60, 50, 60));
 
-        JPanel p = new JPanel(new GridLayout(0, 2, 50, 10));  // 2 kolone: labela + polje
+        JPanel p = new JPanel(new GridLayout(0, 2, 50, 10));  // 2 columns: label + field
 
         JLabel from_label = new JLabel("From:", SwingConstants.RIGHT);
         from_label.setFont(new Font("Verdana", Font.PLAIN, 40));
@@ -39,7 +39,7 @@ public class InputFlight extends JDialog {
         time_label.setFont(new Font("Verdana", Font.PLAIN, 40));
         p.add(time_label);
 
-        // mali panel: sat : minut  (u jednoj ćeliji desne kolone)
+        // small panel: hour : minute (in one cell of the right column)
         JPanel time_panel = new JPanel(new FlowLayout());
         JTextField hour = new JTextField(5);
         hour.setFont(new Font("Verdana", Font.PLAIN, 40));
@@ -63,7 +63,7 @@ public class InputFlight extends JDialog {
         JButton ok = new JButton("OK");
         ok.setFont(new Font("Verdana", Font.PLAIN, 40));
 
-        // validacija ista kao pre
+        // input validation
         ok.addActionListener(e -> {
             String fromVal     = from.getText();
             String toVal       = to.getText();

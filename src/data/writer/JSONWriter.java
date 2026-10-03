@@ -20,7 +20,7 @@ public class JSONWriter extends Writer {
 	public void process(BufferedWriter bw) throws IOException {
 		DataWrapper w = new DataWrapper();
 
-		// domen -> DTO (iste pomoćne klase koje koristi JSONReader)
+		// domain -> DTO (the same helper classes JSONReader uses)
 		List<Airport> airports = Airport.getAirports();
 		w.airports = new AirportJson[airports.size()];
 		for (int i = 0; i < airports.size(); i++) {
@@ -51,8 +51,8 @@ public class JSONWriter extends Writer {
 
 	public static void main(String[] args) {
 		try {
-			new JSONReader().read("files/data.json");   // prvo učitaj podatke
-			new JSONWriter().write("files/out.json");   // pa ih snimi nazad
+			new JSONReader().read("files/data.json");   // load the data first
+			new JSONWriter().write("files/out.json");   // then save it back
 			System.out.println("Snimljeno u files/out.json");
 		} catch (Exception e) {
 			System.out.println(e.getMessage());

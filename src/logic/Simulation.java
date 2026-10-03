@@ -17,7 +17,7 @@ public class Simulation {
                 finished.run();
                 return;
             }
-            time+=2;   // 200ms -> 2 sim-minuta (1s = 10min)
+            time+=2;   // 200 ms -> 2 simulated minutes (1 s = 10 min)
             Airplane.move(time);
             runnable.run();
         });

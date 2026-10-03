@@ -20,7 +20,7 @@ public class CSVWriter extends Writer {
 			bw.newLine();
 		}
 
-		bw.newLine();   // prazan red između sekcija
+		bw.newLine();   // empty line between sections
 
 		bw.write("# FLIGHTS");
 		bw.newLine();
@@ -35,8 +35,8 @@ public class CSVWriter extends Writer {
 
 	public static void main(String[] args) {
 		try {
-			new CSVReader().read("files/data.csv");   // prvo učitaj podatke
-			new CSVWriter().write("files/out.csv");   // pa ih snimi nazad
+			new CSVReader().read("files/data.csv");   // load the data first
+			new CSVWriter().write("files/out.csv");   // then save it back
 			System.out.println("Snimljeno u files/out.csv");
 		} catch (Exception e) {
 			System.out.println(e.getMessage());

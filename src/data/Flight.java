@@ -79,8 +79,8 @@ public class Flight{
 	}
 	
 	public static void reschedule(){
-		// vrati sva vremena na planirano, pa raspoređuj iz nule
-		// (da rezultat ne zavisi od prethodnih poziva reschedule-a)
+		// reset all times to the planned ones and reschedule from scratch
+		// (so the result does not depend on earlier reschedule calls)
 		for (Flight f : flights) {
 			f.h = f.plannedH;
 			f.min = f.plannedMin;

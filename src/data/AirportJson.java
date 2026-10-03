@@ -1,6 +1,6 @@
 package data;
 
-//odgovara jednom aerodromu u JSON-u: {"code":..,"name":..,"x":..,"y":..}
+// one airport in the JSON file: {"code":..,"name":..,"x":..,"y":..}
 public class AirportJson {
 	public String code;
 	public String name;

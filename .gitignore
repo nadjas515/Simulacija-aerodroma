@@ -12,10 +12,12 @@ out/
 .project
 .settings/
 
-# Podaci koje aplikacija snima
+# Data files saved by the application (examples are kept)
 *.csv
 *.json
+!examples/*.csv
+!examples/*.json
 
-# Sistem
+# OS
 .DS_Store
 Thumbs.db

@@ -12,17 +12,17 @@ import java.awt.event.MouseEvent;
 
 public class MapPanel extends JPanel {
 
-    private static final int SIZE = 20;        // veličina kvadrata
-    private static final int FONT_SIZE = 20;   // veličina koda
+    private static final int SIZE = 20;        // size of an airport square
+    private static final int FONT_SIZE = 20;   // font size of the airport code
 
-    private Airport selected = null;   // trenutno selektovani aerodrom (ili null)
-    private boolean blinkOn = false;   // stanje treperenja (menja ga tajmer)
+    private Airport selected = null;   // currently selected airport (or null)
+    private boolean blinkOn = false;   // blink state (toggled by the timer)
 
     private InactivityTimer timer;
 
 
     public MapPanel() {
-        // MouseListener se dodaje JEDNOM, u konstruktoru (NE u paintComponent!)
+        // the MouseListener is added ONCE, in the constructor (NOT in paintComponent!)
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -35,7 +35,7 @@ public class MapPanel extends JPanel {
                     }
                 }
                 if (clicked != null) {
-                    // ponovni klik na isti -> poništi selekciju; inače selektuj
+                    // clicking the selected airport again deselects it; otherwise select it
                     if(selected == clicked) {
                         selected = null;
                         timer.cont();
@@ -44,12 +44,12 @@ public class MapPanel extends JPanel {
                         selected = clicked;
                         timer.pause();
                     }
-                    repaint();   // NE crtamo ovde - samo tražimo ponovno iscrtavanje
+                    repaint();   // don't paint here, just request a repaint
                 }
             }
         });
 
-        // Swing Timer: svakih 500ms okrene blinkOn i prekrca panel -> treperenje
+        // Swing Timer: toggles blinkOn every 500 ms and repaints the panel -> blinking
         new Timer(500, e -> {
             blinkOn = !blinkOn;
             repaint();
@@ -73,7 +73,7 @@ public class MapPanel extends JPanel {
 
         boolean showEverything = Airport.showAll();
 
-        // 1. PROLAZ: kvadrati (selektovani treperi crveno, ostali sivi)
+        // PASS 1: squares (the selected one blinks red, the rest are grey)
         for (Airport a : airports) {
             if(!showEverything && !a.isVisible()) continue;
             Rectangle r = getRect(a);
@@ -91,7 +91,7 @@ public class MapPanel extends JPanel {
             g.fillOval(r.x, r.y, r.width, r.height);
         }
 
-        // 2. PROLAZ: kodovi preko svih kvadrata
+        // PASS 2: codes drawn on top of all squares
         g.setColor(Color.BLACK);
         g.setFont(new Font("Verdana", Font.BOLD, FONT_SIZE));
         for (Airport a : airports) {
@@ -101,7 +101,7 @@ public class MapPanel extends JPanel {
         }
     }
 
-    // pravougaonik kvadrata za dati aerodrom (računa W/H iz trenutne veličine panela)
+    // square for the given airport (W/H computed from the current panel size)
     private Rectangle getRect(Data a) {
         int px = MapProjection.toPixelX(a.getX(), getWidth());
         int py = MapProjection.toPixelY(a.getY(), getHeight());

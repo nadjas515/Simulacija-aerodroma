@@ -1,0 +1,14 @@
+{
+  "airports": [
+    {"code": "BEG", "name": "Belgrade", "x": 20, "y": 44},
+    {"code": "VIE", "name": "Vienna", "x": 16, "y": 48},
+    {"code": "FRA", "name": "Frankfurt", "x": 8, "y": 50},
+    {"code": "LHR", "name": "London", "x": 0, "y": 51}
+  ],
+  "flights": [
+    {"from": "BEG", "to": "VIE", "departure": "08:00", "duration": 70},
+    {"from": "BEG", "to": "FRA", "departure": "08:05", "duration": 125},
+    {"from": "VIE", "to": "LHR", "departure": "08:10", "duration": 140},
+    {"from": "LHR", "to": "BEG", "departure": "08:15", "duration": 165}
+  ]
+}

@@ -12,26 +12,26 @@ import util.TimeUtil;
 
 import javax.swing.*;                       // JFrame, JButton, JLabel, JTextField, JPanel, JTable, JTabbedPane
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel; // model tabele
-import java.awt.*;                          // layout-i, Font, Toolkit, AWTEvent
+import javax.swing.table.DefaultTableModel; // table model
+import java.awt.*;                          // layouts, Font, Toolkit, AWTEvent
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 
 
-// U Swing-u glavni prozor je JFrame (umesto AWT Frame)
+// Main application window
 public class Window extends JFrame {
     private InactivityTimer timer;
-    // modeli tabela su POLJA klase - da bi refresh() mogao da ih puni sa bilo kog mesta
+    // table models are FIELDS so that refresh() can fill them from anywhere
     private final DefaultTableModel airportModel =
             new DefaultTableModel(new String[]{"Code", "Name", "X", "Y","Show"}, 0){
                 public Class<?> getColumnClass(int col) {
-                    return col == 4 ? Boolean.class : Object.class;   // kolona 4 = checkbox
+                    return col == 4 ? Boolean.class : Object.class;   // column 4 = checkbox
                 }
                 @Override
                 public boolean isCellEditable(int row, int col) {
-                    return col == 4;   // samo checkbox sme da se menja (ostalo read-only)
+                    return col == 4;   // only the checkbox is editable (everything else is read-only)
                 }
             };
     private final DefaultTableModel flightModel =
@@ -51,12 +51,12 @@ public class Window extends JFrame {
 
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BorderLayout());
-        sidebar.setPreferredSize(new Dimension(700, 0));   // šira desna kolona da stanu sve kolone tabele
-                                                           // (visina 0 nije bitna - CENTER prozora je diktira)
+        sidebar.setPreferredSize(new Dimension(700, 0));   // wider right column so all table columns fit
+                                                           // (height 0 is ignored, the window's CENTER determines it)
 
-        // ---------- dugmad (NORTH) ----------
+        // ---------- buttons (NORTH) ----------
         JPanel buttons = new JPanel();
-        buttons.setLayout(new GridLayout(0, 1, 5, 5));  // 1 kolona, koliko god redova, razmak 5px
+        buttons.setLayout(new GridLayout(0, 1, 5, 5));  // 1 column, any number of rows, 5px gap
 
         JLabel timeLabel = makeLabel("Time: 00:00");
         sim=new Simulation(()->{
@@ -72,7 +72,7 @@ public class Window extends JFrame {
         startButton.addActionListener(e -> {
             if (Flight.getFlights().isEmpty()) {
                 new ErrorDialog(Window.this, "Nema letova za simulaciju");
-                return;   // ne pokreći sat
+                return;   // don't start the clock
             }
             Flight.reschedule();
             sim.startTimer();
@@ -96,8 +96,8 @@ public class Window extends JFrame {
 
         JButton inputAirport = makeButton("Input Airport",buttons);
         inputAirport.addActionListener(e -> {
-            new InputAirport(Window.this);   // modalni dijalog - blokira dok se ne zatvori
-            refresh();                        // po zatvaranju osveži tabelu (možda je dodat aerodrom)
+            new InputAirport(Window.this);   // modal dialog, blocks until closed
+            refresh();                        // refresh the table afterwards (an airport may have been added)
             mapPanel.repaint();
         });
 
@@ -120,18 +120,18 @@ public class Window extends JFrame {
             JFileChooser chooser = new JFileChooser();
             setFontRecursively(chooser, new Font("Verdana", Font.PLAIN, 30));
             chooser.setPreferredSize(new Dimension(800, 600));
-            chooser.setCurrentDirectory(new File("./"));   // startuj u folderu "files" (opciono)
-            chooser.setFileFilter(new FileNameExtensionFilter("CSV i JSON", "csv", "json"));  // opciono
+            chooser.setCurrentDirectory(new File("./"));   // start in the working directory
+            chooser.setFileFilter(new FileNameExtensionFilter("CSV i JSON", "csv", "json"));  // optional
             int result = chooser.showOpenDialog(Window.this);
             if (result == JFileChooser.APPROVE_OPTION) {
                 File file = chooser.getSelectedFile();
-                input_file.setText(file.getAbsolutePath());   // upiši putanju u postojeće polje
+                input_file.setText(file.getAbsolutePath());   // put the path into the existing text field
             }
         });
 
         JPanel browsePanel = new JPanel(new BorderLayout(5, 0));
-        browsePanel.add(input_file, BorderLayout.CENTER);   // polje se RASTEGNE na sav prostor
-        browsePanel.add(browse, BorderLayout.EAST);         // dugme ostane svoje širine, desno
+        browsePanel.add(input_file, BorderLayout.CENTER);   // the field STRETCHES to fill the space
+        browsePanel.add(browse, BorderLayout.EAST);         // the button keeps its width, on the right
 
         buttons.add(browsePanel);
 
@@ -145,7 +145,7 @@ public class Window extends JFrame {
             }
             try {
                 reader.read(filename);
-                refresh();                                       // prikaži učitane podatke u tabeli
+                refresh();                                       // show the loaded data in the table
                 new InfoDialog(Window.this, "Uspešno učitano");
             } catch (IOException ex) {
                 new ErrorDialog(Window.this, "Fajl se ne može pročitati");
@@ -185,7 +185,7 @@ public class Window extends JFrame {
 
 
 
-        // isprazni sve podatke (npr. pre učitavanja novog fajla, da nema duplikata)
+        // clear all data (e.g. before loading a new file, to avoid duplicates)
         JButton clear = makeButton("Clear",buttons);
         clear.addActionListener(e -> {
             sim.stopTimer();
@@ -214,7 +214,7 @@ public class Window extends JFrame {
             }
         });
 
-        // ---------- tabele (CENTER) ----------
+        // ---------- tables (CENTER) ----------
         JTable airportTable = new JTable(airportModel);
         int cols[]=new int[]{120,300,100,100,100};
         configureTable(airportTable,cols);
@@ -224,21 +224,21 @@ public class Window extends JFrame {
         cols= new int[]{100, 100, 150, 150};
         configureTable(flightTable,cols);
 
-        // dve tabele u tabovima "Airports" / "Flights"
+        // two tables in the "Airports" / "Flights" tabs
         JTabbedPane tabs = new JTabbedPane();
         tabs.setFont(new Font("Verdana", Font.PLAIN, 30));
-        tabs.addTab("Airports", new JScrollPane(airportTable));   // tabela MORA u JScrollPane
+        tabs.addTab("Airports", new JScrollPane(airportTable));   // the table MUST be inside a JScrollPane
         tabs.addTab("Flights",  new JScrollPane(flightTable));
         sidebar.add(tabs, BorderLayout.CENTER);
 
         this.add(sidebar, BorderLayout.EAST);
 
-        // mapPanel ide DIREKTNO u CENTER da ga BorderLayout rastegne na ceo prostor
+        // mapPanel goes DIRECTLY into CENTER so BorderLayout stretches it over the whole area
         this.add(mapPanel, BorderLayout.CENTER);
 
         this.setVisible(true);
 
-        // tajmer neaktivnosti - radi isto kao pre (ne zavisi od AWT/Swing komponenti)
+        // inactivity timer (independent of the GUI components)
         timer = new InactivityTimer(this);
         Toolkit.getDefaultToolkit().addAWTEventListener(event -> {
             int id = event.getID();
@@ -259,7 +259,7 @@ public class Window extends JFrame {
         }
     }
 
-    // zajedničko podešavanje izgleda tabele (font, visina reda, font zaglavlja)
+    // shared table styling (font, row height, header font)
     private void configureTable(JTable table,int cols[]) {
         table.setRowHeight(50);
         table.setFont(new Font("Verdana", Font.PLAIN, 25));
@@ -269,9 +269,9 @@ public class Window extends JFrame {
         }
     }
 
-    // puni obe tabele iz trenutnih podataka - zove se posle svakog unosa i Load-a
+    // fills both tables from the current data; called after every input and Load
     private void refresh() {
-        airportModel.setRowCount(0);// obriši stare redove
+        airportModel.setRowCount(0);// remove old rows
         for (Airport a : Airport.getAirports())
             airportModel.addRow(a.toRow());
 
@@ -306,18 +306,18 @@ public class Window extends JFrame {
     private Reader readerFor(String ext) {
         if (ext.equals("json")) return new JSONReader();
         if (ext.equals("csv"))  return new CSVReader();
-        return null;   // pozivalac prikaže grešku
+        return null;   // the caller shows the error
     }
 
     private Writer writerFor(String ext) {
         if (ext.equals("json")) return new JSONWriter();
         if (ext.equals("csv"))  return new CSVWriter();
-        return null;   // pozivalac prikaže grešku
+        return null;   // the caller shows the error
     }
 
 
     public static void main(String[] args) {
-        // Swing preporuka: GUI se pravi na Event Dispatch niti (EDT)
+        // Swing rule: the GUI is created on the Event Dispatch Thread (EDT)
         SwingUtilities.invokeLater(() -> new Window());
     }
 }

@@ -8,20 +8,20 @@ import java.awt.Frame;
 
 public class InactivityTimer extends Thread {
 
-    private static final int LIMIT = 60;   // ukupno sekundi neaktivnosti pre zatvaranja
-    private static final int WARN  = 5;    // poslednjih 5s ide upozorenje sa odbrojavanjem
+    private static final int LIMIT = 60;   // total seconds of inactivity before the app closes
+    private static final int WARN  = 5;    // a countdown warning is shown for the last 5 s
 
     private final Frame owner;
-    private WarningDialog warning;          // menja se samo na EDT-u
+    private WarningDialog warning;          // only modified on the EDT
 
     private volatile boolean pause=false;
 
     public InactivityTimer(Frame owner) {
         this.owner = owner;
-        setDaemon(true);   // nit ne drži program otvorenim
+        setDaemon(true);   // this thread does not keep the program alive
     }
 
-    // poziva se na svaku akciju korisnika -> vrati brojač na 0 i zatvori upozorenje
+    // called on every user action -> reset the counter and close the warning
     public void reset() {
         interrupt();
         if (warning != null) {
@@ -42,7 +42,7 @@ public class InactivityTimer extends Thread {
     public void run() {
         while (true) {
             try {
-                Thread.sleep((LIMIT-WARN)*1000);   // odspavaj 1s
+                Thread.sleep((LIMIT-WARN)*1000);   // sleep until the warning period starts
             } catch (InterruptedException e) {
                 continue;
             }

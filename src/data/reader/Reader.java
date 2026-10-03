@@ -17,7 +17,7 @@ public abstract class Reader {
 			throws IOException, FormatException, AirportExists, AirportNotExists;
 
 
-	// ne obrađuje greške ovde - samo ih propušta nagore, da ih GUI prikaže korisniku
+	// errors are not handled here; they are passed up so the GUI can show them to the user
 	public void read(String filename)
 			throws FileNotExists, IOException, FormatException, AirportExists, AirportNotExists {
 		Path path = Paths.get(filename);

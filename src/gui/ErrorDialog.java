@@ -1,25 +1,25 @@
 package gui;
 
-import javax.swing.*;   // Swing komponente: JDialog, JLabel...
-import java.awt.*;      // Font, Color (ostaju iz AWT-a)
+import javax.swing.*;   // Swing components: JDialog, JLabel...
+import java.awt.*;      // Font, Color (from AWT)
 
-// U Swing-u dijalog je JDialog (umesto AWT Dialog)
+// Dialog for error messages
 class ErrorDialog extends JDialog {
 
-    // owner je java.awt.Window da bi prihvatio i glavni prozor i drugi dijalog kao roditelja
+    // owner is a java.awt.Window so that both the main window and another dialog can be the parent
     ErrorDialog(java.awt.Window owner, String msg) {
         super(owner);
         this.setTitle("Error");
-        // JLabel: poravnanje se zadaje preko SwingConstants (umesto starog Label.CENTER)
+        // centered label
         JLabel title = new JLabel(msg, SwingConstants.CENTER);
         title.setFont(new Font("Verdana", Font.BOLD, 30));
         title.setForeground(Color.RED);
         title.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
-        this.add(title);   // add() na JDialog automatski ide na "content pane"
+        this.add(title);   // add() on a JDialog goes to its content pane
 
-        this.setModal(true);                                     // blokira dok se ne zatvori
-        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); // "X" zatvara i oslobađa dijalog
-        this.setLocationRelativeTo(owner);                       // centriraj preko roditelja
+        this.setModal(true);                                     // blocks until closed
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); // "X" closes and disposes the dialog
+        this.setLocationRelativeTo(owner);                       // center over the parent
         this.pack();
         this.setVisible(true);
     }
