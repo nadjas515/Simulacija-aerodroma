@@ -1,14 +1,22 @@
 {
   "airports": [
     {"code": "BEG", "name": "Belgrade", "x": 20, "y": 44},
-    {"code": "VIE", "name": "Vienna", "x": 16, "y": 48},
-    {"code": "FRA", "name": "Frankfurt", "x": 8, "y": 50},
-    {"code": "LHR", "name": "London", "x": 0, "y": 51}
+    {"code": "LHR", "name": "London", "x": 0, "y": 51},
+    {"code": "JFK", "name": "New York", "x": -74, "y": 41},
+    {"code": "GRU", "name": "Sao Paulo", "x": -47, "y": -23},
+    {"code": "JNB", "name": "Johannesburg", "x": 28, "y": -26},
+    {"code": "DXB", "name": "Dubai", "x": 55, "y": 25},
+    {"code": "NRT", "name": "Tokyo", "x": 140, "y": 36},
+    {"code": "SYD", "name": "Sydney", "x": 151, "y": -34}
   ],
   "flights": [
-    {"from": "BEG", "to": "VIE", "departure": "08:00", "duration": 70},
-    {"from": "BEG", "to": "FRA", "departure": "08:05", "duration": 125},
-    {"from": "VIE", "to": "LHR", "departure": "08:10", "duration": 140},
-    {"from": "LHR", "to": "BEG", "departure": "08:15", "duration": 165}
+    {"from": "BEG", "to": "LHR", "departure": "00:20", "duration": 180},
+    {"from": "BEG", "to": "DXB", "departure": "00:20", "duration": 300},
+    {"from": "LHR", "to": "JFK", "departure": "00:30", "duration": 480},
+    {"from": "JNB", "to": "DXB", "departure": "00:30", "duration": 480},
+    {"from": "DXB", "to": "NRT", "departure": "00:40", "duration": 600},
+    {"from": "JFK", "to": "GRU", "departure": "00:50", "duration": 600},
+    {"from": "NRT", "to": "SYD", "departure": "01:00", "duration": 560},
+    {"from": "GRU", "to": "JNB", "departure": "01:10", "duration": 600}
   ]
 }
