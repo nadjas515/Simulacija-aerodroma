@@ -13,6 +13,14 @@ A Java Swing desktop application for planning airport departures and watching fl
 - **File I/O**: load and save in CSV and JSON (via Gson), through abstract `Reader`/`Writer` classes with one subclass per format.
 - **Inactivity timeout**: a background thread closes the application after 60 s without user activity, showing a countdown warning for the last 5 s.
 
+## Development phases
+
+The project was built in three phases, each one adding to the previous:
+
+- **Phase A: data and user interface.** The model of airports and flights, reading and writing CSV and JSON files through a common `Reader`/`Writer` interface, the Swing main window with airport and flight tables, input dialogs with validation, error and info dialogs, and the inactivity timer.
+- **Phase B: map.** The custom-drawn map panel with airports positioned by their coordinates, selecting an airport by clicking it (it blinks), and showing or hiding airports with checkboxes in the table. The inactivity timer can be paused.
+- **Phase C: simulation.** The simulation clock with start, pause and stop, planes moving along their routes based on simulated time, and automatic rescheduling of departures so that flights from the same airport are at least 10 minutes apart.
+
 ## Running
 
 Requires JDK 17+ and Gson (`gson-2.10.jar` is included).
